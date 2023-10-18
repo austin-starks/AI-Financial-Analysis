@@ -53,7 +53,7 @@ def get_financial_data_analysis(ticker: str, year: str, period: str):
     func = None
     model = "gpt-3.5-turbo"  # Replace with the model you want to use
     temperature = 0
-    message_limit = 10  # Maximum number of messages to consider in the conversation
+    message_limit = 6  # Maximum number of messages to consider in the conversation
     client = openai.OpenAI(openai_token)
     response = client.chat(messages, func, model, temperature, message_limit)
     print("AI Assistant: ", response["choices"][0]["message"]["content"])

@@ -23,7 +23,7 @@ class SimFin:
             return f"{self.url}{path}?api-key={self.api_key}"
         return f"{self.url}{path}".replace("?", f"?api-key={self.api_key}&")
 
-    def get_derived(self, ticker, fyear, period):
+    def _get_derived(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -149,7 +149,7 @@ class SimFin:
 
         return summary_json
 
-    def get_cash_flow(self, ticker, fyear, period):
+    def _get_cash_flow(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -238,7 +238,7 @@ class SimFin:
 
         return summary_json
 
-    def get_profit_loss(self, ticker, fyear, period):
+    def _get_profit_loss(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -321,7 +321,7 @@ class SimFin:
             summary_json["Metadata"][key] = value if value is not None else "N/A"
         return summary_json
 
-    def get_balance_sheet(self, ticker, fyear, period):
+    def _get_balance_sheet(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -411,10 +411,10 @@ class SimFin:
         return summary_json
 
     def get_financials(self, ticker, fyear, period):
-        balance_json = self.get_balance_sheet(ticker, fyear, period)
-        cash_flow_json = self.get_cash_flow(ticker, fyear, period)
-        derived_json = self.get_derived(ticker, fyear, period)
-        profit_loss_json = self.get_profit_loss(ticker, fyear, period)
+        balance_json = self._get_balance_sheet(ticker, fyear, period)
+        cash_flow_json = self._get_cash_flow(ticker, fyear, period)
+        derived_json = self._get_derived(ticker, fyear, period)
+        profit_loss_json = self._get_profit_loss(ticker, fyear, period)
         return (
             balance_json,
             cash_flow_json,
