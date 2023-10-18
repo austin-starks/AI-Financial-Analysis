@@ -56,20 +56,7 @@ class SimFin:
         return summary_json
 
     def get_derived(self, ticker, fyear, period):
-        response = requests.get(
-            self._full_path(f"companies/statements"),
-            params={
-                "ticker": ticker,
-                "statement": "derived",
-                "fyear": fyear,
-                "period": period,
-            },
-        )
-        if response.status_code != 200:
-            raise Exception(
-                f"Request failed with status code: {response.status_code}, response: {response.text}"
-            )
-        data = response.json()
+        data = self._get_company_statements(ticker, "derived", fyear, period)
         column_map = {
             "EBITDA": 10,
             "Gross Profit Margin": 13,
@@ -137,21 +124,7 @@ class SimFin:
         return summary_json
 
     def get_cash_flow(self, ticker, fyear, period):
-        response = requests.get(
-            self._full_path(f"companies/statements"),
-            params={
-                "ticker": ticker,
-                "statement": "cf",
-                "fyear": fyear,
-                "period": period,
-            },
-        )
-        if response.status_code != 200:
-            raise Exception(
-                f"Request failed with status code: {response.status_code}, response: {response.text}"
-            )
-        data = response.json()
-
+        data = self._get_company_statements(ticker, "cf", fyear, period)
         column_map = {
             "Net Income": 11,
             "Depreciation & Amortization": 14,
@@ -225,20 +198,7 @@ class SimFin:
         return summary_json
 
     def get_balance_sheet(self, ticker, fyear, period):
-        response = requests.get(
-            self._full_path(f"companies/statements"),
-            params={
-                "ticker": ticker,
-                "statement": "bs",
-                "fyear": fyear,
-                "period": period,
-            },
-        )
-        if response.status_code != 200:
-            raise Exception(
-                f"Request failed with status code: {response.status_code}, response: {response.text}"
-            )
-        data = response.json()
+        data = self._get_company_statements(ticker, "bs", fyear, period)
         column_map = {
             "Cash, Cash Equivalents & Short Term Investments": 10,
             "Accounts & Notes Receivable": 13,
