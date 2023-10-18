@@ -27,7 +27,7 @@ def get_system_prompt():
     """
 
 
-def get_financial_data(ticker: str, year: str, period: str):
+def get_all_financial_data(ticker: str, year: str, period: str):
     dats_wrangler = simfin.SimFin(simfin_token)
     (
         balance_json,
@@ -39,6 +39,22 @@ def get_financial_data(ticker: str, year: str, period: str):
     print("Cash Flow\n", json.dumps(cash_flow_json, indent=4), "\n")
     print("Derived\n", json.dumps(derived_json, indent=4), "\n")
     print("Profit Loss\n", json.dumps(profit_loss_json, indent=4), "\n")
+
+
+def get_financial_data(ticker: str, year: str, period: str, statement: str):
+    dats_wrangler = simfin.SimFin(simfin_token)
+    if statement == "bs":
+        statement_json = dats_wrangler.get_balance_sheet(ticker, year, period)
+    elif statement == "cf":
+        statement_json = dats_wrangler.get_cash_flow(ticker, year, period)
+    elif statement == "derived":
+        statement_json = dats_wrangler.get_derived(ticker, year, period)
+    elif statement == "pl":
+        statement_json = dats_wrangler.get_profit_loss(ticker, year, period)
+    else:
+        raise ValueError("Statement must be one of bs, cf, derived, or pl")
+    print("Balance Sheet\n", json.dumps(statement_json, indent=4), "\n")
+    return statement_json
 
 
 def get_financial_data_analysis(ticker: str, year: str, period: str):
@@ -63,7 +79,7 @@ def main():
     if not simfin_token:
         raise ValueError("SIMFIN_TOKEN is not set")
     if not openai_token:
-        return get_financial_data(ticker, year, period)
+        return get_all_financial_data(ticker, year, period)
     return get_financial_data_analysis(ticker, year, period)
 
 

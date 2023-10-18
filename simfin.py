@@ -18,12 +18,44 @@ class SimFin:
 
         return extracted_data
 
+    def _get_company_statements(self, ticker, statement, fyear, period):
+        params = {
+            "api-key": self.api_key,
+            "ticker": ticker,
+            "statement": statement,
+            "fyear": fyear,
+            "period": period,
+        }
+        response = requests.get(f"{self.url}companies/statements", params=params)
+
+        if response.status_code != 200:
+            raise Exception(
+                f"Request failed with status code: {response.status_code}, response: {response.text}"
+            )
+
+        return response.json()
+
     def _full_path(self, path):
         if "?" not in path:
             return f"{self.url}{path}?api-key={self.api_key}"
         return f"{self.url}{path}".replace("?", f"?api-key={self.api_key}&")
 
-    def _get_derived(self, ticker, fyear, period):
+    def _build_summary_json(self, extracted_data, categories):
+        summary_json = {}
+        for category, keys in categories.items():
+            summary_json[category] = {}
+            for key in keys:
+                value = extracted_data.get(key)
+                if value is None:
+                    formatted_value = "N/A"
+                elif isinstance(value, (int, float)):
+                    formatted_value = f"${value:,}"
+                else:
+                    formatted_value = value
+                summary_json[category][key] = formatted_value
+        return summary_json
+
+    def get_derived(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -39,7 +71,6 @@ class SimFin:
             )
         data = response.json()
         column_map = {
-            # Profitability Metrics
             "EBITDA": 10,
             "Gross Profit Margin": 13,
             "Operating Margin": 14,
@@ -47,23 +78,18 @@ class SimFin:
             "Return on Equity": 16,
             "Return on Assets": 17,
             "Return On Invested Capital": 29,
-            # Liquidity Metrics
             "Current Ratio": 19,
-            # Solvency Metrics
             "Total Debt": 11,
             "Liabilities to Equity Ratio": 20,
             "Debt Ratio": 21,
-            # Cash Flow Metrics
             "Free Cash Flow": 12,
             "Free Cash Flow to Net Income": 18,
             "Cash Return On Invested Capital": 30,
-            # Per Share Metrics
             "Earnings Per Share, Basic": 22,
             "Earnings Per Share, Diluted": 23,
             "Sales Per Share": 24,
             "Equity Per Share": 25,
             "Dividends Per Share": 27,
-            # Other Important Metrics
             "Piotroski F-Score": 28,
             "Net Debt / EBITDA": 32,
             "Dividend Payout Ratio": 31,
@@ -72,84 +98,45 @@ class SimFin:
             "Source": 7,
         }
         extracted_data = self._extract_financial_data(data, column_map)
-        summary_json = {
-            "Profitability Metrics": {},
-            "Liquidity Metrics": {},
-            "Solvency Metrics": {},
-            "Cash Flow Metrics": {},
-            "Per Share Metrics": {},
-            "Other Important Metrics": {},
-            "Metadata": {},
+        column_map = {
+            "Profitability Metrics": [
+                "EBITDA",
+                "Gross Profit Margin",
+                "Operating Margin",
+                "Net Profit Margin",
+                "Return on Equity",
+                "Return on Assets",
+                "Return On Invested Capital",
+            ],
+            "Liquidity Metrics": ["Current Ratio"],
+            "Solvency Metrics": [
+                "Total Debt",
+                "Liabilities to Equity Ratio",
+                "Debt Ratio",
+            ],
+            "Cash Flow Metrics": [
+                "Free Cash Flow",
+                "Free Cash Flow to Net Income",
+                "Cash Return On Invested Capital",
+            ],
+            "Per Share Metrics": [
+                "Earnings Per Share, Basic",
+                "Earnings Per Share, Diluted",
+                "Sales Per Share",
+                "Equity Per Share",
+                "Dividends Per Share",
+            ],
+            "Other Important Metrics": [
+                "Piotroski F-Score",
+                "Net Debt / EBITDA",
+                "Dividend Payout Ratio",
+            ],
+            "Metadata": ["Report Date", "Publish Date", "Source"],
         }
-
-        # Profitability Metrics
-        for key in [
-            "EBITDA",
-            "Gross Profit Margin",
-            "Operating Margin",
-            "Net Profit Margin",
-            "Return on Equity",
-            "Return on Assets",
-            "Return On Invested Capital",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Profitability Metrics"][key] = (
-                f"{value}" if value is not None else "N/A"
-            )
-
-        # Liquidity Metrics
-        for key in ["Current Ratio"]:
-            value = extracted_data.get(key)
-            summary_json["Liquidity Metrics"][key] = (
-                f"{value}" if value is not None else "N/A"
-            )
-
-        # Solvency Metrics
-        for key in ["Total Debt", "Liabilities to Equity Ratio", "Debt Ratio"]:
-            value = extracted_data.get(key)
-            summary_json["Solvency Metrics"][key] = (
-                f"{value}" if value is not None else "N/A"
-            )
-
-        # Cash Flow Metrics
-        for key in [
-            "Free Cash Flow",
-            "Free Cash Flow to Net Income",
-            "Cash Return On Invested Capital",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Cash Flow Metrics"][key] = (
-                f"{value}" if value is not None else "N/A"
-            )
-
-        # Per Share Metrics
-        for key in [
-            "Earnings Per Share, Basic",
-            "Earnings Per Share, Diluted",
-            "Sales Per Share",
-            "Equity Per Share",
-            "Dividends Per Share",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Per Share Metrics"][key] = (
-                f"{value}" if value is not None else "N/A"
-            )
-
-        # Other Important Metrics
-        for key in ["Piotroski F-Score", "Net Debt / EBITDA", "Dividend Payout Ratio"]:
-            value = extracted_data.get(key)
-            summary_json["Other Important Metrics"][key] = (
-                f"{value}" if value is not None else "N/A"
-            )
-
-        # Metadata
-        for key in ["Report Date", "Publish Date", "Source"]:
-            value = extracted_data.get(key)
-            summary_json["Metadata"][key] = value if value is not None else "N/A"
-
+        summary_json = self._build_summary_json(extracted_data, column_map)
         return summary_json
 
-    def _get_cash_flow(self, ticker, fyear, period):
+    def get_cash_flow(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -182,78 +169,30 @@ class SimFin:
         }
 
         extracted_data = self._extract_financial_data(data, column_map)
-
-        summary_json = {
-            "Operating Activities": {},
-            "Investing Activities": {},
-            "Financing Activities": {},
-            "Net Change": {},
-            "Metadata": {},
+        column_map = {
+            "Operating Activities": [
+                "Net Income",
+                "Depreciation & Amortization",
+                "Change in Working Capital",
+                "Net Cash from Operating Activities",
+            ],
+            "Investing Activities": [
+                "Acquisition of Fixed Assets & Intangibles",
+                "Net Cash from Investing Activities",
+            ],
+            "Financing Activities": [
+                "Dividends Paid",
+                "Cash from (Repayment of) Debt",
+                "Net Cash from Financing Activities",
+            ],
+            "Net Change": ["Net Change in Cash"],
+            "Metadata": ["Report Date", "Publish Date", "Source"],
         }
-
-        # Operating Activities
-        for key in [
-            "Net Income",
-            "Depreciation & Amortization",
-            "Change in Working Capital",
-            "Net Cash from Operating Activities",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Operating Activities"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Investing Activities
-        for key in [
-            "Acquisition of Fixed Assets & Intangibles",
-            "Net Cash from Investing Activities",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Investing Activities"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Financing Activities
-        for key in [
-            "Dividends Paid",
-            "Cash from (Repayment of) Debt",
-            "Net Cash from Financing Activities",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Financing Activities"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Net Change
-        for key in ["Net Change in Cash"]:
-            value = extracted_data.get(key)
-            summary_json["Net Change"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Metadata
-        for key in ["Report Date", "Publish Date", "Source"]:
-            value = extracted_data.get(key)
-            summary_json["Metadata"][key] = value if value is not None else "N/A"
-
+        summary_json = self._build_summary_json(extracted_data, column_map)
         return summary_json
 
-    def _get_profit_loss(self, ticker, fyear, period):
-        response = requests.get(
-            self._full_path(f"companies/statements"),
-            params={
-                "ticker": ticker,
-                "statement": "pl",
-                "fyear": fyear,
-                "period": period,
-            },
-        )
-        if response.status_code != 200:
-            raise Exception(
-                f"Request failed with status code: {response.status_code}, response: {response.text}"
-            )
-        data = response.json()
-
+    def get_profit_loss(self, ticker, fyear, period):
+        data = self._get_company_statements(ticker, "pl", fyear, period)
         column_map = {
             "Revenue": 10,
             "Gross Profit": 18,
@@ -270,58 +209,22 @@ class SimFin:
         }
 
         extracted_data = self._extract_financial_data(data, column_map)
-        summary_json = {
-            "Income": {},
-            "Expenses": {},
-            "Profitability": {},
-            "Taxation": {},
-            "Per Share Metrics": {},
-            "Metadata": {},
+        categories = {
+            "Income": ["Revenue", "Gross Profit"],
+            "Expenses": [
+                "Operating Expenses",
+                "Interest Expense",
+                "Depreciation & Amortization",
+            ],
+            "Profitability": ["Operating Income (Loss)", "Pretax Income (Loss)"],
+            "Taxation": ["Income Tax (Expense) Benefit, Net"],
+            "Per Share Metrics": ["Earnings Per Share, Basic"],
+            "Metadata": ["Report Date", "Publish Date", "Source"],
         }
-        # Income
-        for key in ["Revenue", "Gross Profit"]:
-            value = extracted_data.get(key)
-            summary_json["Income"][key] = f"${value:,}" if value is not None else "N/A"
-
-        # Expenses
-        for key in [
-            "Operating Expenses",
-            "Interest Expense",
-            "Depreciation & Amortization",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Expenses"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Profitability
-        for key in ["Operating Income (Loss)", "Pretax Income (Loss)"]:
-            value = extracted_data.get(key)
-            summary_json["Profitability"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Taxation
-        for key in ["Income Tax (Expense) Benefit, Net"]:
-            value = extracted_data.get(key)
-            summary_json["Taxation"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Per Share Metrics
-        for key in ["Earnings Per Share, Basic"]:
-            value = extracted_data.get(key)
-            summary_json["Per Share Metrics"][key] = (
-                f"${value:,}" if value is not None else "N/A"
-            )
-
-        # Metadata
-        for key in ["Report Date", "Publish Date", "Source"]:
-            value = extracted_data.get(key)
-            summary_json["Metadata"][key] = value if value is not None else "N/A"
+        summary_json = self._build_summary_json(extracted_data, categories)
         return summary_json
 
-    def _get_balance_sheet(self, ticker, fyear, period):
+    def get_balance_sheet(self, ticker, fyear, period):
         response = requests.get(
             self._full_path(f"companies/statements"),
             params={
@@ -359,62 +262,40 @@ class SimFin:
             "Source": 7,
         }
         extracted_data = self._extract_financial_data(data, column_map)
-        summary_json = {
-            "Assets": {},
-            "Liabilities": {},
-            "Equity": {},
-            "Summary": {},
-            "Metadata": {},
+        categories = {
+            "Assets": [
+                "Cash, Cash Equivalents & Short Term Investments",
+                "Accounts & Notes Receivable",
+                "Inventories",
+                "Other Short Term Assets",
+                "Total Current Assets",
+                "Total Noncurrent Assets",
+                "Total Assets",
+            ],
+            "Liabilities": [
+                "Accounts Payable",
+                "Short Term Debt",
+                "Total Current Liabilities",
+                "Long Term Debt",
+                "Total Noncurrent Liabilities",
+                "Total Liabilities",
+            ],
+            "Equity": [
+                "Common Stock",
+                "Retained Earnings",
+                "Total Equity",
+            ],
+            "Summary": ["Total Liabilities & Equity"],
+            "Metadata": ["Report Date", "Publish Date", "Source"],
         }
-
-        for key in [
-            "Cash, Cash Equivalents & Short Term Investments",
-            "Accounts & Notes Receivable",
-            "Inventories",
-            "Other Short Term Assets",
-            "Total Current Assets",
-            "Total Noncurrent Assets",
-            "Total Assets",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Assets"][key] = f"${value:,}" if value is not None else "N/A"
-
-        for key in [
-            "Accounts Payable",
-            "Short Term Debt",
-            "Total Current Liabilities",
-            "Long Term Debt",
-            "Total Noncurrent Liabilities",
-            "Total Liabilities",
-        ]:
-            value = extracted_data.get(key)
-            summary_json["Liabilities"][key] = (
-                f"${extracted_data[key]:,}" if value is not None else "N/A"
-            )
-
-        for key in ["Common Stock", "Retained Earnings", "Total Equity"]:
-            value = extracted_data.get(key)
-            summary_json["Equity"][key] = (
-                f"${extracted_data[key]:,}" if value is not None else "N/A"
-            )
-
-        for key in ["Report Date", "Publish Date", "Source"]:
-            value = extracted_data.get(key)
-            summary_json["Metadata"][key] = value if value is not None else "N/A"
-
-        value = extracted_data.get("Total Liabilities & Equity")
-        summary_json["Summary"]["Total Liabilities & Equity"] = (
-            f"${value:,} - This should equal the Total Assets, as per the accounting equation Assets = Liabilities + Equity."
-            if value is not None
-            else "N/A"
-        )
+        summary_json = self._build_summary_json(extracted_data, categories)
         return summary_json
 
     def get_financials(self, ticker, fyear, period):
-        balance_json = self._get_balance_sheet(ticker, fyear, period)
-        cash_flow_json = self._get_cash_flow(ticker, fyear, period)
-        derived_json = self._get_derived(ticker, fyear, period)
-        profit_loss_json = self._get_profit_loss(ticker, fyear, period)
+        balance_json = self.get_balance_sheet(ticker, fyear, period)
+        cash_flow_json = self.get_cash_flow(ticker, fyear, period)
+        derived_json = self.get_derived(ticker, fyear, period)
+        profit_loss_json = self.get_profit_loss(ticker, fyear, period)
         return (
             balance_json,
             cash_flow_json,
