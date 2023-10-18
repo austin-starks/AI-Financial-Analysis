@@ -1,3 +1,4 @@
+import json
 import os
 
 from dotenv import load_dotenv
@@ -11,6 +12,11 @@ load_dotenv(dotenv_path=dotenv_path)
 simfin_token = os.environ["SIMFIN_TOKEN"]
 openai_token = os.environ["OPENAI_API_KEY"]
 
+# Replace with the ticker, year, and period you want to analyze
+ticker = "AAPL"
+year = "2023"
+period = "q1"
+
 
 def get_system_prompt():
     return """
@@ -21,7 +27,21 @@ def get_system_prompt():
     """
 
 
-def run(ticker: str, year: str, period: str):
+def get_financial_data(ticker: str, year: str, period: str):
+    dats_wrangler = simfin.SimFin(simfin_token)
+    (
+        balance_json,
+        cash_flow_json,
+        derived_json,
+        profit_loss_json,
+    ) = dats_wrangler.get_financials(ticker, year, period)
+    print("Balance Sheet\n", json.dumps(balance_json, indent=4), "\n")
+    print("Cash Flow\n", json.dumps(cash_flow_json, indent=4), "\n")
+    print("Derived\n", json.dumps(derived_json, indent=4), "\n")
+    print("Profit Loss\n", json.dumps(profit_loss_json, indent=4), "\n")
+
+
+def get_financial_data_analysis(ticker: str, year: str, period: str):
     dats_wrangler = simfin.SimFin(simfin_token)
     content = dats_wrangler.get_financial_info_text(ticker, year, period)
     messages = [
@@ -39,5 +59,13 @@ def run(ticker: str, year: str, period: str):
     print("AI Assistant: ", response["choices"][0]["message"]["content"])
 
 
+def main():
+    if not simfin_token:
+        raise ValueError("SIMFIN_TOKEN is not set")
+    if not openai_token:
+        return get_financial_data(ticker, year, period)
+    return get_financial_data_analysis(ticker, year, period)
+
+
 if __name__ == "__main__":
-    run(ticker="AAPL", year="2023", period="Q1")
+    main()
