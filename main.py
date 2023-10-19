@@ -10,7 +10,7 @@ import simfin
 dotenv_path = Path(".env")
 load_dotenv(dotenv_path=dotenv_path)
 simfin_token = os.environ["SIMFIN_TOKEN"]
-openai_token = os.environ["OPENAI_API_KEY"]
+openai_token = os.environ.get("OPENAI_API_KEY")
 
 # Replace with the ticker, year, and period you want to analyze
 ticker = "AAPL"
