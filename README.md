@@ -4,9 +4,9 @@ This script is an AI-powered financial analyst that summarizes company finances,
 
 ## Check out NexusTrade
 
-For a fully functional platform, [check out NexusTrade](https://nexustrade.onrender.com/). NexusTrade is a AI-Powered automated trading and investment platform that allows users to create, test, optimize, and deploy algorithmic trading strategies. It's fast, configurable, easy to use, and requires no code!
+For a fully functional platform, [check out NexusTrade](https://nexustrade.io/). NexusTrade is a AI-Powered automated trading and investment platform that allows users to create, test, optimize, and deploy algorithmic trading strategies. It's fast, configurable, easy to use, and requires no code!
 
-NexusTrade has this feature implemented in it's [AI-Powered Chat](https://nexustrade.onrender.com/chat). It requires no setup and it's easy for everybody, even non-developers, to use. Just create an account and try it out.
+NexusTrade has this feature implemented in it's [AI-Powered Chat](https://nexustrade.io/chat). It requires no setup and it's easy for everybody, even non-developers, to use. Just create an account and try it out.
 
 ## Installation
 
