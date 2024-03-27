@@ -4,29 +4,31 @@ import requests
 
 class SimFin:
     def __init__(self, api_key):
-        self.url = "https://simfin.com/api/v2/"
+        self.url = "https://backend.simfin.com/api/v3"
         self.api_key = api_key
 
-    def _extract_financial_data(self, json_data, column_map):
-        if not json_data or not json_data[0] or not json_data[0]["found"]:
+    def _extract_financial_data(self, json_data):
+        if not json_data or not json_data[0] or not json_data[0]["statements"]:
             raise Exception("No data found")
-        financial_data = json_data[0]["data"][0]
+        data = json_data[0]["statements"][0]['data'][0]
         extracted_data = {}
-
-        for key, index in column_map.items():
-            extracted_data[key] = financial_data[index]
-
+        columns = json_data[0]["statements"][0]['columns']
+        for index, key in enumerate(columns):
+            extracted_data[key] = data[index]
         return extracted_data
 
     def _get_company_statements(self, ticker, statement, fyear, period):
+        headers = {
+            "Authorization": f"api-key {self.api_key}",
+            "Accept": "application/json",
+        }
         params = {
-            "api-key": self.api_key,
             "ticker": ticker,
-            "statement": statement,
+            "statements": statement,
             "fyear": fyear,
             "period": period,
         }
-        response = requests.get(f"{self.url}companies/statements", params=params)
+        response = requests.get(f"{self.url}/companies/statements/compact", headers=headers, params=params)
 
         if response.status_code != 200:
             raise Exception(
@@ -34,11 +36,6 @@ class SimFin:
             )
 
         return response.json()
-
-    def _full_path(self, path):
-        if "?" not in path:
-            return f"{self.url}{path}?api-key={self.api_key}"
-        return f"{self.url}{path}".replace("?", f"?api-key={self.api_key}&")
 
     def _build_summary_json(self, extracted_data, categories):
         summary_json = {}
@@ -49,7 +46,7 @@ class SimFin:
                 if value is None:
                     formatted_value = "N/A"
                 elif isinstance(value, (int, float)):
-                    formatted_value = f"${value:,}"
+                    formatted_value = f"{value:,}"
                 else:
                     formatted_value = value
                 summary_json[category][key] = formatted_value
@@ -57,34 +54,7 @@ class SimFin:
 
     def get_derived(self, ticker, fyear, period):
         data = self._get_company_statements(ticker, "derived", fyear, period)
-        column_map = {
-            "EBITDA": 10,
-            "Gross Profit Margin": 13,
-            "Operating Margin": 14,
-            "Net Profit Margin": 15,
-            "Return on Equity": 16,
-            "Return on Assets": 17,
-            "Return On Invested Capital": 29,
-            "Current Ratio": 19,
-            "Total Debt": 11,
-            "Liabilities to Equity Ratio": 20,
-            "Debt Ratio": 21,
-            "Free Cash Flow": 12,
-            "Free Cash Flow to Net Income": 18,
-            "Cash Return On Invested Capital": 30,
-            "Earnings Per Share, Basic": 22,
-            "Earnings Per Share, Diluted": 23,
-            "Sales Per Share": 24,
-            "Equity Per Share": 25,
-            "Dividends Per Share": 27,
-            "Piotroski F-Score": 28,
-            "Net Debt / EBITDA": 32,
-            "Dividend Payout Ratio": 31,
-            "Report Date": 4,
-            "Publish Date": 5,
-            "Source": 7,
-        }
-        extracted_data = self._extract_financial_data(data, column_map)
+        extracted_data = self._extract_financial_data(data)
         column_map = {
             "Profitability Metrics": [
                 "EBITDA",
@@ -106,46 +76,21 @@ class SimFin:
                 "Free Cash Flow to Net Income",
                 "Cash Return On Invested Capital",
             ],
-            "Per Share Metrics": [
-                "Earnings Per Share, Basic",
-                "Earnings Per Share, Diluted",
-                "Sales Per Share",
-                "Equity Per Share",
-                "Dividends Per Share",
-            ],
             "Other Important Metrics": [
                 "Piotroski F-Score",
                 "Net Debt / EBITDA",
                 "Dividend Payout Ratio",
             ],
-            "Metadata": ["Report Date", "Publish Date", "Source"],
+            "Metadata": ["Report Date"],
         }
         summary_json = self._build_summary_json(extracted_data, column_map)
         return summary_json
 
     def get_cash_flow(self, ticker, fyear, period):
         data = self._get_company_statements(ticker, "cf", fyear, period)
-        column_map = {
-            "Net Income": 11,
-            "Depreciation & Amortization": 14,
-            "Change in Working Capital": 19,
-            "Net Cash from Operating Activities": 25,
-            "Acquisition of Fixed Assets & Intangibles": 30,
-            "Net Cash from Investing Activities": 44,
-            "Dividends Paid": 45,
-            "Cash from (Repayment of) Debt": 46,
-            "Net Cash from Financing Activities": 56,
-            "Net Change in Cash": 61,
-            "Report Date": 4,
-            "Publish Date": 5,
-            "Source": 7,
-        }
-
-        extracted_data = self._extract_financial_data(data, column_map)
+        extracted_data = self._extract_financial_data(data)
         column_map = {
             "Operating Activities": [
-                "Net Income",
-                "Depreciation & Amortization",
                 "Change in Working Capital",
                 "Net Cash from Operating Activities",
             ],
@@ -166,32 +111,13 @@ class SimFin:
 
     def get_profit_loss(self, ticker, fyear, period):
         data = self._get_company_statements(ticker, "pl", fyear, period)
-        column_map = {
-            "Revenue": 10,
-            "Gross Profit": 18,
-            "Operating Income (Loss)": 28,
-            "Operating Expenses": 20,
-            "Interest Expense": 31,
-            "Depreciation & Amortization": 25,
-            "Earnings Per Share, Basic": 64,
-            "Pretax Income (Loss)": 52,
-            "Income Tax (Expense) Benefit, Net": 53,
-            "Report Date": 4,
-            "Publish Date": 5,
-            "Source": 7,
-        }
-
-        extracted_data = self._extract_financial_data(data, column_map)
+        extracted_data = self._extract_financial_data(data)
         categories = {
             "Income": ["Revenue", "Gross Profit"],
             "Expenses": [
                 "Operating Expenses",
-                "Interest Expense",
-                "Depreciation & Amortization",
             ],
             "Profitability": ["Operating Income (Loss)", "Pretax Income (Loss)"],
-            "Taxation": ["Income Tax (Expense) Benefit, Net"],
-            "Per Share Metrics": ["Earnings Per Share, Basic"],
             "Metadata": ["Report Date", "Publish Date", "Source"],
         }
         summary_json = self._build_summary_json(extracted_data, categories)
@@ -199,29 +125,7 @@ class SimFin:
 
     def get_balance_sheet(self, ticker, fyear, period):
         data = self._get_company_statements(ticker, "bs", fyear, period)
-        column_map = {
-            "Cash, Cash Equivalents & Short Term Investments": 10,
-            "Accounts & Notes Receivable": 13,
-            "Inventories": 17,
-            "Other Short Term Assets": 22,
-            "Total Current Assets": 30,
-            "Total Noncurrent Assets": 49,
-            "Total Assets": 50,
-            "Accounts Payable": 52,
-            "Short Term Debt": 56,
-            "Total Current Liabilities": 66,
-            "Long Term Debt": 67,
-            "Total Noncurrent Liabilities": 81,
-            "Total Liabilities": 82,
-            "Common Stock": 85,
-            "Retained Earnings": 89,
-            "Total Equity": 93,
-            "Total Liabilities & Equity": 94,
-            "Report Date": 4,
-            "Publish Date": 5,
-            "Source": 7,
-        }
-        extracted_data = self._extract_financial_data(data, column_map)
+        extracted_data = self._extract_financial_data(data)
         categories = {
             "Assets": [
                 "Cash, Cash Equivalents & Short Term Investments",
