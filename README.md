@@ -2,7 +2,7 @@
 
 This script is an AI-powered financial analyst that summarizes company finances, provides pros and cons, and makes recommendations based on the provided financial information. It uses the GPT-3.5-turbo model from OpenAI to generate the analysis.
 
-[![Video Demo of Applications of Large Language Models](https://via.placeholder.com/150)](https://nexustrade-prod.nyc3.cdn.digitaloceanspaces.com/NexusTradeDemo.mp4)
+[![Video Demo of Applications of Large Language Models]](https://nexustrade-prod.nyc3.cdn.digitaloceanspaces.com/NexusTradeDemo.mp4)
 
 ## Check out NexusTrade
 
