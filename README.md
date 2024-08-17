@@ -2,6 +2,8 @@
 
 This script is an AI-powered financial analyst that summarizes company finances, provides pros and cons, and makes recommendations based on the provided financial information. It uses the GPT-3.5-turbo model from OpenAI to generate the analysis.
 
+[![Video Demo of Applications of Large Language Models](https://via.placeholder.com/150)](https://nexustrade-prod.nyc3.cdn.digitaloceanspaces.com/NexusTradeDemo.mp4)
+
 ## Check out NexusTrade
 
 For a fully functional platform, [check out NexusTrade](https://nexustrade.io/). NexusTrade is a AI-Powered automated trading and investment platform that allows users to create, test, optimize, and deploy algorithmic trading strategies. It's fast, configurable, easy to use, and requires no code!
