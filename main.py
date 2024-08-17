@@ -71,15 +71,11 @@ def get_financial_data_analysis(ticker: str, year: str, period: str):
         {"role": "system", "content": get_system_prompt()},
         {"role": "user", "content": content},
     ]
-    for msg in messages[1:]:
-        print(f"{msg['role'].capitalize()}\n", msg["content"], "\n")
-    func = None
-    model = "gpt-3.5-turbo"  # Replace with the model you want to use
+    model = "gpt-4o-mini"  # Replace with the model you want to use
     temperature = 0
-    message_limit = 6  # Maximum number of messages to consider in the conversation
     client = openai.OpenAI(openai_token)
-    response = client.chat(messages, func, model, temperature, message_limit)
-    print("AI Assistant: ", response["choices"][0]["message"]["content"])
+    response = client.chat(messages, model, temperature)
+    print(response)
 
 
 def main():

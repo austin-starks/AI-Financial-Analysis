@@ -18,6 +18,8 @@ To run the script, you need to have the following packages installed:
 You can install these packages by running the following command:
 
 ```
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 

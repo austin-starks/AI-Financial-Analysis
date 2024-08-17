@@ -5,7 +5,7 @@ class OpenAI:
     def __init__(self, api_key):
         self.api_key = api_key
 
-    def chat(self, messages, func, model, temperature, message_limit):
+    def chat(self, messages, model, temperature):
         if not self.api_key:
             raise ValueError("API key for OpenAI is missing")
 
@@ -15,17 +15,12 @@ class OpenAI:
             "Authorization": f"Bearer {self.api_key}",
         }
 
-        new_messages = messages[-message_limit:]
         data = {
             "model": model,
-            "messages": new_messages,
+            "messages": messages,
             "temperature": temperature,
             "user": "self",
         }
 
-        if func:
-            data["functions"] = [func]
-            data["function_call"] = {"name": func["name"]}
-
         response = requests.post(url, json=data, headers=headers)
-        return response.json()
+        return response.json()["choices"][0]["message"]["content"]
