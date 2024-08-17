@@ -39,7 +39,7 @@ Replace `YOUR_SIMFIN_API_KEY` with your SimFin API token and `YOUR_OPENAI_API_KE
 To use the AI Financial Analyst, run the following command:
 
 ```
-python main.py
+python chat.py
 ```
 
 The script will provide a summary of the company's finances based on the provided financial information. It will analyze the balance sheet, cash flow, profitability metrics, liquidity metrics, solvency metrics, cash flow metrics, and other important metrics. The script will also provide a recommendation based on the analysis.
