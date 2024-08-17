@@ -9,7 +9,7 @@ from datetime import datetime
 # Load environment variables
 dotenv_path = Path(".env")
 load_dotenv(dotenv_path=dotenv_path)
-simfin_token = os.environ["SIMFIN_TOKEN"]
+SIMFIN_API_KEY = os.environ["SIMFIN_API_KEY"]
 openai_token = os.environ.get("OPENAI_API_KEY")
 
 def get_system_prompt():

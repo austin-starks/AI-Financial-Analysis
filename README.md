@@ -28,11 +28,11 @@ pip install -r requirements.txt
 Before running the script, you need to set up your environment variables. Create a `.env` file in the project directory and add the following variables:
 
 ```
-SIMFIN_TOKEN=YOUR_SIMFIN_TOKEN
+SIMFIN_API_KEY=YOUR_SIMFIN_API_KEY
 OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 ```
 
-Replace `YOUR_SIMFIN_TOKEN` with your SimFin API token and `YOUR_OPENAI_API_KEY` with your OpenAI API key.
+Replace `YOUR_SIMFIN_API_KEY` with your SimFin API token and `YOUR_OPENAI_API_KEY` with your OpenAI API key.
 
 ## Usage
 

@@ -9,7 +9,7 @@ import simfin
 
 dotenv_path = Path(".env")
 load_dotenv(dotenv_path=dotenv_path)
-simfin_token = os.environ["SIMFIN_TOKEN"]
+SIMFIN_API_KEY = os.environ["SIMFIN_API_KEY"]
 openai_token = os.environ.get("OPENAI_API_KEY")
 
 # Replace with the ticker, year, and period you want to analyze
@@ -35,7 +35,7 @@ def get_system_prompt():
 
 
 def get_all_financial_data(ticker: str, year: str, period: str):
-    dats_wrangler = simfin.SimFin(simfin_token)
+    dats_wrangler = simfin.SimFin(SIMFIN_API_KEY)
     (
         balance_json,
         cash_flow_json,
@@ -49,7 +49,7 @@ def get_all_financial_data(ticker: str, year: str, period: str):
 
 
 def get_financial_data(ticker: str, year: str, period: str, statement: str):
-    dats_wrangler = simfin.SimFin(simfin_token)
+    dats_wrangler = simfin.SimFin(SIMFIN_API_KEY)
     if statement == "bs":
         statement_json = dats_wrangler.get_balance_sheet(ticker, year, period)
     elif statement == "cf":
@@ -65,7 +65,7 @@ def get_financial_data(ticker: str, year: str, period: str, statement: str):
 
 
 def get_financial_data_analysis(ticker: str, year: str, period: str):
-    dats_wrangler = simfin.SimFin(simfin_token)
+    dats_wrangler = simfin.SimFin(SIMFIN_API_KEY)
     content = dats_wrangler.get_financial_info_text(ticker, year, period)
     messages = [
         {"role": "system", "content": get_system_prompt()},
@@ -79,8 +79,8 @@ def get_financial_data_analysis(ticker: str, year: str, period: str):
 
 
 def main():
-    if not simfin_token:
-        raise ValueError("SIMFIN_TOKEN is not set")
+    if not SIMFIN_API_KEY:
+        raise ValueError("SIMFIN_API_KEY is not set")
     if not openai_token:
         return get_all_financial_data(ticker, year, period)
     return get_financial_data_analysis(ticker, year, period)
