@@ -67,7 +67,6 @@ def chat_with_user():
             try:
                 json_str = response[response.index("{"):response.rindex("}")+1]
                 data = json.loads(json_str)
-                print(data)
                 
                 # Extract necessary fields
                 ticker = data.get("data").get("ticker")
