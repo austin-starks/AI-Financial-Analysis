@@ -1,6 +1,6 @@
 # AI Financial Analyst
 
-This script is an AI-powered financial analyst that summarizes company finances, provides pros and cons, and makes recommendations based on the provided financial information. It uses the GPT-3.5-turbo model from OpenAI to generate the analysis.
+This script is an AI-powered financial analyst that summarizes company finances, provides pros and cons, and makes recommendations based on the provided financial information. It uses one of the GPT models from OpenAI or Ollama to generate the analysis a model from Ollama to generate the analysis.
 
 ## Check out NexusTrade
 
