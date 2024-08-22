@@ -38,7 +38,7 @@ OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 
 Replace `YOUR_SIMFIN_API_KEY` with your SimFin API token and `YOUR_OPENAI_API_KEY` with your OpenAI API key.
 
-## Setting Up an Ollama
+## Setting Up Ollama
 
 To use Ollama as an alternative to OpenAI, follow these steps:
 
