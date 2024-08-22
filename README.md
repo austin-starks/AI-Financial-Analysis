@@ -54,10 +54,16 @@ OLLAMA_SERVICE_URL=http://localhost:11434
 
 ## Usage
 
-To use the AI Financial Analyst, run the following command:
+To use the AI Financial Analyst with OpenAI, run the following command:
 
 ```
 python chat.py
+```
+
+To use it with Ollama, run this command instead:
+
+```
+python chat.py --use-ollama
 ```
 
 The script will provide a summary of the company's finances based on the provided financial information. It will analyze the balance sheet, cash flow, profitability metrics, liquidity metrics, solvency metrics, cash flow metrics, and other important metrics. The script will also provide a recommendation based on the analysis.
