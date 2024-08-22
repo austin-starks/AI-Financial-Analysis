@@ -31,12 +31,26 @@ pip install -r requirements.txt
 
 Before running the script, you need to set up your environment variables. Create a `.env` file in the project directory and add the following variables:
 
-```
+```plaintext
 SIMFIN_API_KEY=YOUR_SIMFIN_API_KEY
 OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 ```
 
 Replace `YOUR_SIMFIN_API_KEY` with your SimFin API token and `YOUR_OPENAI_API_KEY` with your OpenAI API key.
+
+## Setting Up an Ollama
+
+To use Ollama as an alternative to OpenAI, follow these steps:
+
+1. **Download Ollama**: Go to [ollama.com/download](https://ollama.com/download) and download the appropriate version for your operating system.
+
+2. **Download the Model**: Visit [ollama.com/library/llama3.1](https://ollama.com/library/llama3.1) to download the model you want to use.
+
+3. **(Optional) Set the Environment Variable**: If Ollama is not running on the default port, you must set up the following environment variable in your `.env` file:
+
+```plaintext
+OLLAMA_SERVICE_URL=http://localhost:11434
+```
 
 ## Usage
 
