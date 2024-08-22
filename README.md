@@ -2,6 +2,10 @@
 
 This script is an AI-powered financial analyst that summarizes company finances, provides pros and cons, and makes recommendations based on the provided financial information. It uses one of the GPT models from OpenAI or Ollama to generate the analysis a model from Ollama to generate the analysis.
 
+[Video Demo of Applications of Large Language Models](https://www.youtube.com/watch?v=FW4WueDzxTI)
+
+[Article on using LLMs for financial analysis and algorithmic trading](https://medium.com/p/146d67c52cdb)
+
 ## Check out NexusTrade
 
 For a fully functional platform, [check out NexusTrade](https://nexustrade.io/). NexusTrade is a AI-Powered automated trading and investment platform that allows users to create, test, optimize, and deploy algorithmic trading strategies. It's fast, configurable, easy to use, and requires no code!
@@ -39,7 +43,7 @@ Replace `YOUR_SIMFIN_API_KEY` with your SimFin API token and `YOUR_OPENAI_API_KE
 To use the AI Financial Analyst, run the following command:
 
 ```
-python main.py
+python chat.py
 ```
 
 The script will provide a summary of the company's finances based on the provided financial information. It will analyze the balance sheet, cash flow, profitability metrics, liquidity metrics, solvency metrics, cash flow metrics, and other important metrics. The script will also provide a recommendation based on the analysis.
